@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+﻿from fastapi import APIRouter
 
 from app.api.v1.endpoints import (
     auth,
@@ -16,6 +16,9 @@ from app.api.v1.endpoints import (
     partners,
     contacts,
     subscribers,
+    menus,
+    blogs,
+    blog_admin,
 )
 
 api_router = APIRouter(prefix="/api/v1")
@@ -35,3 +38,6 @@ api_router.include_router(videos.router)
 api_router.include_router(partners.router)
 api_router.include_router(contacts.router)
 api_router.include_router(subscribers.router)
+api_router.include_router(menus.router)
+api_router.include_router(blogs.router)
+api_router.include_router(blog_admin.router)

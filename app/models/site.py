@@ -45,10 +45,14 @@ class Video(Base):
     __tablename__ = "videos"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    location = Column(String, nullable=False, default="home")
     title = Column(String, nullable=True)
     video_url = Column(String, nullable=False)
     thumbnail_url = Column(String, nullable=True)
+    poster_url = Column(String, nullable=True)
+    thumbnail_label = Column(String, nullable=True)
     display_order = Column(Integer, nullable=True)
+    is_active = Column(Boolean, default=True)
     delete_at = Column(DateTime(timezone=True), nullable=True)
     delete_by = Column(Integer, nullable=True)
 

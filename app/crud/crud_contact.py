@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import desc
 from datetime import datetime, timezone
+from typing import Optional
 
 from app.models.contact import Contact, Subscriber
 from app.schemas.contact import ContactCreate, ContactUpdate, SubscriberCreate
@@ -8,8 +10,22 @@ _now = lambda: datetime.now(timezone.utc)
 
 
 # ─── Contact ─────────────────────────────────────────────────────
-def get_contacts(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(Contact).filter(Contact.delete_at == None).offset(skip).limit(limit).all()
+def get_contacts(
+    db: Session,
+    skip: int = 0,
+    limit: int = 100,
+    enquiry_type: Optional[str] = None,
+    status: Optional[str] = None,
+):
+    query = db.query(Contact).filter(Contact.delete_at == None)
+
+    if enquiry_type:
+        query = query.filter(Contact.enquiry_type == enquiry_type)
+
+    if status:
+        query = query.filter(Contact.status == status)
+
+    return query.order_by(desc(Contact.created_at)).offset(skip).limit(limit).all()
 
 
 def get_contact(db: Session, contact_id: int):
@@ -41,6 +57,14 @@ def soft_delete_contact(db: Session, contact_id: int, deleted_by: int):
         obj.delete_by = deleted_by
         db.commit()
     return obj
+
+
+def get_contacts_count(db: Session, enquiry_type: Optional[str] = None):
+    """Đếm số lượng contacts theo loại."""
+    query = db.query(Contact).filter(Contact.delete_at == None)
+    if enquiry_type:
+        query = query.filter(Contact.enquiry_type == enquiry_type)
+    return query.count()
 
 
 # ─── Subscriber ──────────────────────────────────────────────────

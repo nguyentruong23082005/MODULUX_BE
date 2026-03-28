@@ -1,22 +1,28 @@
-from fastapi import FastAPI
+﻿from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
-from app.core.config import CORS_ORIGINS
-from app.db.session import engine, Base
 from app.api.v1.api import api_router
+from app.core.config import CORS_ORIGINS, MEDIA_ROOT
+from app.db.session import Base, engine
+from app.services.blog_sync_service import ensure_blog_sync_schema, start_blog_sync_scheduler, stop_blog_sync_scheduler
 
-# Import tất cả models để SQLAlchemy nhận diện khi tạo bảng
 from app.models import (  # noqa: F401
-    user, site, project, blog, page, contact
+    blog,
+    blog_sync,
+    contact,
+    page,
+    project,
+    site,
+    user,
 )
 
 app = FastAPI(
     title="Modulux Homes API",
-    description="Backend API cho dự án Modulux Homes - CMS đầy đủ tính năng với Soft Delete",
+    description="Backend API for Modulux Homes CMS",
     version="2.0.0",
 )
 
-# Setup CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
@@ -25,14 +31,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
+app.mount("/media", StaticFiles(directory=MEDIA_ROOT), name="media")
+
 
 @app.on_event("startup")
-def on_startup():
-    """Tự động tạo bảng trong DB khi server khởi động."""
+def on_startup() -> None:
     Base.metadata.create_all(bind=engine)
+    ensure_blog_sync_schema()
+    start_blog_sync_scheduler()
 
 
-# Gắn toàn bộ Router API v1
+@app.on_event("shutdown")
+def on_shutdown() -> None:
+    stop_blog_sync_scheduler()
+
+
 app.include_router(api_router)
 
 

@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean, Text, DateTime, ForeignKey, func
+from sqlalchemy.orm import relationship
 from app.db.session import Base
 
 
@@ -15,6 +16,23 @@ class Page(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     delete_at = Column(DateTime(timezone=True), nullable=True)
     delete_by = Column(Integer, nullable=True)
+
+    sections = relationship("PageSection", back_populates="page", order_by="PageSection.display_order", cascade="all, delete-orphan")
+
+
+class PageSection(Base):
+    __tablename__ = "page_sections"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    page_id = Column(Integer, ForeignKey("pages.id"), nullable=False, index=True)
+    section_type = Column(String, nullable=False)  # e.g., 'hero', 'intro', 'factory', 'projects'
+    title = Column(String, nullable=True)
+    subtitle = Column(String, nullable=True)
+    content = Column(Text, nullable=True)
+    image_url = Column(String, nullable=True)
+    display_order = Column(Integer, default=0)
+
+    page = relationship("Page", back_populates="sections")
 
 
 class Faq(Base):

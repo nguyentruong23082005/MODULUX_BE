@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 
@@ -20,6 +20,37 @@ class PageUpdate(BaseModel):
     meta_description: Optional[str] = None
 
 
+class PageSectionCreate(BaseModel):
+    section_type: str
+    title: Optional[str] = None
+    subtitle: Optional[str] = None
+    content: Optional[str] = None
+    image_url: Optional[str] = None
+    display_order: Optional[int] = 0
+
+
+class PageSectionUpdate(BaseModel):
+    section_type: Optional[str] = None
+    title: Optional[str] = None
+    subtitle: Optional[str] = None
+    content: Optional[str] = None
+    image_url: Optional[str] = None
+    display_order: Optional[int] = None
+
+
+class PageSectionOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    page_id: int
+    section_type: str
+    title: Optional[str] = None
+    subtitle: Optional[str] = None
+    content: Optional[str] = None
+    image_url: Optional[str] = None
+    display_order: int = 0
+
+
 class PageOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -31,6 +62,8 @@ class PageOut(BaseModel):
     meta_title: Optional[str] = None
     meta_description: Optional[str] = None
     updated_at: Optional[datetime] = None
+
+    sections: List[PageSectionOut] = []
 
 
 # ─── Faq ─────────────────────────────────────────────────────────

@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import logging
 import threading
@@ -52,6 +52,12 @@ class BlogSyncService:
     def import_from_excel(self, file_bytes: bytes) -> SyncSummary:
         urls = self._read_excel_urls(file_bytes)
         return self._run_locked_sync(urls)
+
+    def import_from_urls(self, urls: list[str]) -> SyncSummary:
+        cleaned = [u.strip() for u in urls if u and u.strip()]
+        if not cleaned:
+            raise ValueError("No valid URLs provided")
+        return self._run_locked_sync(cleaned)
 
     def _run_locked_sync(self, entries: list[CrawledBlogLink | str]) -> SyncSummary:
         acquired = BLOG_SYNC_LOCK.acquire(blocking=False)

@@ -1,4 +1,4 @@
-﻿from datetime import datetime
+from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
@@ -55,6 +55,10 @@ class SyncSummaryOut(BaseModel):
     inserted: int
     updated: int
     skipped: int
+
+
+class ImportUrlIn(BaseModel):
+    url: str
 
 
 class BlogTypeUpdateIn(BaseModel):

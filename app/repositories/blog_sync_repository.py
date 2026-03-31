@@ -1,4 +1,4 @@
-﻿from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session
 
 from app.models.blog_sync import Blog, SyncLog
 
@@ -32,6 +32,9 @@ class BlogSyncRepository:
     def add_sync_log(self, db: Session, log: SyncLog) -> SyncLog:
         db.add(log)
         return log
+
+    def delete_blog(self, db: Session, blog: Blog) -> None:
+        db.delete(blog)
 
     def list_sync_logs(self, db: Session, *, limit: int) -> list[SyncLog]:
         return (
